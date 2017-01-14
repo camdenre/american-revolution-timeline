@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 var Battle = require('./models/battle');
 
 app.set('port', (process.env.PORT || 5000));
+app.set('mongodb_uri', (process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/localhost'));
 
 app.use(express.static(__dirname + '/public'));
 
@@ -18,17 +19,12 @@ app.get('/', function (req, res) {
 		if (err) {
 			res.send("Success!");
 		} else {
-			res.send("Failure!");
+			res.send("Failure!\n" + err);
 		}
 	});
 });
-
-var options = { server: { socketOptions: { keepAlive: 300000, connectTimeoutMS: 30000 } }, 
-				replset: { socketOptions: { keepAlive: 300000, connectTimeoutMS : 30000 } } };       
  
-var mongodbUri = 'mongodb://american-revolution-timeline:dbpw1234@ds111549.mlab.com:11549/heroku_9wc8t3xm';
- 
-mongoose.connect(mongodbUri, options);
+mongoose.connect(app.get('mongodb_uri'));
 var conn = mongoose.connection;             
  
 conn.on('error', console.error.bind(console, 'connection error:'));  
