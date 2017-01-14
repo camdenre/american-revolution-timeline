@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/camdenre/american-revolution-timeline/issues"
   },
-  "homepage": "https://github.com/camdenre/american-revolution-timeline#readme"
+  "homepage": "https://github.com/camdenre/american-revolution-timeline#readme",
+  "dependencies": {
+    "express": "^4.14.0"
+  }
 }
