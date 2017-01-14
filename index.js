@@ -3,7 +3,7 @@ var app = express();
 var mongoose = require('mongoose');
 var Battle = require('./models/battle');
 
-mongoose.connect('mongodb://heroku_9wc8t3xm:heroku_9wc8t3xm@ds111549.mlab.com:11549/heroku_9wc8t3xm');
+mongoose.connect('mongodb://american-revolution-timeline:dbpw1234@ds111549.mlab.com:11549/heroku_9wc8t3xm');
 app.set('port', (process.env.PORT || 5000));
 
 app.use(express.static(__dirname + '/public'));
