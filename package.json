@@ -1,0 +1,22 @@
+{
+  "name": "american-revolution-timeline",
+  "version": "1.0.0",
+  "description": "An interactive timeline and map of battles and major events during the American Revolutionary War.",
+  "engines": {
+    "node": "6.9.4"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/camdenre/american-revolution-timeline.git"
+  },
+  "author": "Camden Reslink",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/camdenre/american-revolution-timeline/issues"
+  },
+  "homepage": "https://github.com/camdenre/american-revolution-timeline#readme"
+}
