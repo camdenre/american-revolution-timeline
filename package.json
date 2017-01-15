@@ -21,6 +21,12 @@
   "homepage": "https://github.com/camdenre/american-revolution-timeline#readme",
   "dependencies": {
     "express": "^4.14.0",
-    "mongoose": "^4.7.6"
+    "mongoose": "^4.7.6",
+    "react": "^15.4.2",
+    "react-redux": "^5.0.2",
+    "redux": "^3.6.0"
+  },
+  "devDependencies": {
+    "redux-devtools": "^3.3.2"
   }
 }

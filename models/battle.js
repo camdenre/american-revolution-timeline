@@ -5,6 +5,7 @@ var battleSchema = new Schema({
   title: { type: String, required: true, unique: true },
   start_date: { type: Date, required: true },
   end_date: Date,
+  coordinates: {left: Number, top: Number},
   location: [String],
   description: String,
   victor: String,
