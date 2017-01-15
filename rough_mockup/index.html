@@ -1,0 +1,216 @@
+<!doctype html>
+<html>
+	<head>
+		<style type="text/css">
+			/*html,body{ margin:0; padding:0; height:100%; width:100%; overflow: hidden;}*/
+
+			html,body{ margin:0; padding:0; }
+
+			#timeline {
+				z-index: 3;
+				/*position: absolute;*/
+				top: 50px;
+				left: 15%;
+				width: 70%;
+				height: 100px;
+				background-color: #FFEBBD;
+				border-radius: 10px;
+				position:fixed;
+			}
+
+			#timeline-inner-upper {
+				z-index: 4;
+				position: absolute;
+				top: 10%;
+				left: 10%;
+				width: 80%;
+				height: 50%;
+				background-color: #B5A06E;
+			}
+
+			#timeline-inner-lower {
+				z-index: 4;
+				position: absolute;
+				top: 65%;
+				left: 10%;
+				width: 80%;
+				height: 25%;
+				text-align: center;
+				font-size: 25px;
+			}
+
+			#map {
+				position: relative;
+				background-image: url("map-min1.png");
+				background-size: 100%;
+    			background-repeat: no-repeat;
+				height: 0;
+				padding-top: 132.91%;
+				z-index: 1;
+			}
+
+			.battle {
+				position: absolute;
+				top: 50%;
+				left: 75%;
+				cursor: pointer;
+				z-index: 2;
+				/*background-color: red;*/
+			    width: 25px;
+			    height: 25px;
+			    border-radius: 50%;
+			    /*border: 2px solid #961d1b;*/
+			}
+
+			.timeline-arrow-down {
+				width: 0; 
+				height: 0; 
+				border-left: 15px solid transparent;
+				border-right: 15px solid transparent;
+				border-top: 15px solid #000;
+			}
+
+			.modal {
+			  border: 1px #000 solid;
+			  padding: 45px 15px;
+			  display: inline-block;
+			  position: absolute;
+			  text-align: center;
+			  width: 375px;
+			  max-height: 250px;
+			  overflow: auto;
+			  line-height: 1.4;
+			  z-index: 100;
+			  background-color: #FFF;
+			}
+
+			.modal-img {
+				width: 100%;
+			}
+
+			.modal-close {
+			  cursor: pointer;
+			  position: absolute;
+			  top: 7px;
+			  right: 13px;
+			  font-size: 35px;
+			}
+
+			.modal-header {}
+
+			.modal-subheader {}
+
+			.modal-content {
+			  text-align: left;
+			  padding: 10%;
+			}
+		</style>
+		<script src="jquery-3.1.1.min.js"></script>
+		<script src="jquery.panzoom.min.js"></script>
+		<script src="moment.min.js"></script>
+		<script src="battles.js"></script>
+		<script>
+			
+			var isModalOpen = false;
+			var rev_start = moment([1775, 3, 19]);
+			var rev_end = moment([1783, 8, 3]);
+		    var numberOfDaysInRevolution = moment(rev_end).diff(moment(rev_start), 'days');
+
+		    var updateTimeLine = function(currentActiveDate) {
+				$('#timeline-inner-lower').html(currentActiveDate.format("MMMM Do, YYYY"));
+				var percentageThroughWar = moment(currentActiveDate).diff(moment(rev_start), 'days') / numberOfDaysInRevolution;
+				$(".timeline-arrow-down").remove();
+				var timelineArrow = $("<div>", {class: "timeline-arrow-down", style: "position: absolute; top: -15px; left: " + (percentageThroughWar * $("#timeline-inner-upper").width() - 15) + "px;"});
+				$("#timeline-inner-upper").append(timelineArrow);
+			};
+
+			var updateBattleColors = function(currentActiveDate) {
+				$('.battle').each(function() {
+					var battle = $(this).data('battle');
+					if (battle.date_start.isBefore(currentActiveDate))
+					{
+						$(this).css('background-color', 'red');
+						$(this).css('border', '2px solid #961d1b');
+					} else {
+						$(this).css('background-color', '#bcbcbc');
+						$(this).css('border', '2px solid #79797a');
+					}
+				});
+
+			}
+
+			$(document).ready(function() {
+				updateTimeLine(rev_start);
+				/*
+				$("#map").panzoom({
+					disableXAxis: true
+				});
+				
+				$('#map a').on('mousedown touchstart', function( e ) {
+				  e.stopImmediatePropagation();
+				});
+				*/
+				// populate battles as dots on the map.
+				// populate battles as lines on the timeline
+				for(var i = 0; i < battles.length; i++) {
+					var battle = battles[i];
+					var percentageThroughWar = moment(battle.date_start).diff(rev_start, 'days') * 100 / numberOfDaysInRevolution;
+					var timelineDash = $("<div>", {style: "position: absolute; top: -10%; left: " + percentageThroughWar + "%; width: 4px; height: 120%; background-color: #000"});
+					$("#timeline-inner-upper").append(timelineDash);
+
+					var battleDot = $('<a>', {class: "battle", style: "position: absolute; left: " + (battle.left_coord * 100) + "%; top: " + (battle.top_coord * 100) + "%;"});
+					battleDot.data('battle', battle);
+					$("#map").append(battleDot);
+				}
+
+				updateBattleColors(rev_start);
+
+				
+
+				// create event handler that if you click the timeline, it changes the current date
+				// trigger the "date changed" event, which should update the battles to active/inactive
+				$(document).on('click', "#timeline-inner-upper", function(e) {
+					var offset = $(this).offset();
+				    var relativeX = e.pageX - offset.left;
+				    var percent = relativeX / $(this).width();
+				    var daysOnSlider = percent * numberOfDaysInRevolution;
+				    var activeDate = moment(rev_start).add(daysOnSlider, 'd');
+				    updateTimeLine(activeDate);
+				    updateBattleColors(activeDate);
+				});
+
+				// create event handler that if you click the battle, a modal appears with a description.
+				$(document).on('click', '.battle', function(e) {
+					var battle = $(this).data('battle');
+					if (!isModalOpen)
+					{
+						var modalText = '<div class="modal"><span class="modal-close">&times;</span><img class="modal-img" src="' + battle.img_url + '"><h1 class="modal-header">' + battle.event_name + '</h1><h3 class="modal-subheader">' + battle.date_start.format("MMMM Do, YYYY") + '</h3><div class="modal-content"><b>Location</b>: ' + battle.location + '<br><b>Winner</b>: ' + battle.winner + '<br><b>Important People</b>: ' + battle.people + '<br><b>Description</b>: ' + battle.description + '<br><b>Americans Killed</b>: ' + battle.killed_american + '<br><b>Americans Wounded</b>: ' + battle.wounded_american + '<br><b>Americans Captured</b>: ' + battle.captured_american + '<br><b>British Killed</b>: ' + battle.killed_british + '<br><b>British Wounded</b>: ' + battle.wounded_british + '<br><b>British Captured</b>: ' + battle.captured_british + '<br><b>Consequences</b>: ' + battle.consequences + '<br></div></div>';
+						var modal = $(modalText);
+						console.log(parseInt($(this).css('left')));
+						console.log(parseInt($(this).css('top')));
+						modal.css('left', (parseInt($(this).css('left')) - 50 - 375) + 'px');
+						modal.css('top', (parseInt($(this).css('top')) - 125) + 'px');
+
+						isModalOpen = true;
+						$("#map").append(modal);
+					}
+				});
+
+				$(document).on('click', '.modal-close', function(e) {
+					$('.modal').remove();
+					isModalOpen = false;
+				});
+
+
+			});
+		</script>
+	</head>
+	<body>
+		<div id="timeline">
+			<div id="timeline-inner-upper"></div>
+			<div id="timeline-inner-lower"></div>
+		</div>
+		<div id="map">
+		</div>
+	</body>
+</html>
